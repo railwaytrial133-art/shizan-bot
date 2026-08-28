@@ -1,0 +1,15 @@
+{
+  "name": "minecraft-discord-bot",
+  "version": "1.0.0",
+  "description": "Minecraft bot controlled through Discord",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.25.1",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "mineflayer": "^4.32.0"
+  }
+}
