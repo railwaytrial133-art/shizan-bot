@@ -37,7 +37,7 @@ const WEB_PORT = Number(
 // AUTO LOGIN
 // ======================================================
 
-const LOGIN_COMMAND = "/login hiophiop";
+const LOGIN_COMMAND = "/login shizan";
 
 // ======================================================
 // CHECK CONFIG
