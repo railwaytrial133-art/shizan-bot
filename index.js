@@ -3,9 +3,9 @@ require("dotenv").config();
 const express = require("express");
 const mineflayer = require("mineflayer");
 const {
-  Client,
-  GatewayIntentBits,
-  EmbedBuilder
+  Client,
+  GatewayIntentBits,
+  EmbedBuilder
 } = require("discord.js");
 
 // ======================================================
@@ -18,19 +18,19 @@ const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const DISCORD_CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
 
 const DEFAULT_MC_HOST = process.env.MC_HOST;
-const DEFAULT_MC_PORT = 25565;
+const DEFAULT_MC_PORT = Number(process.env.MC_PORT || 25565);
 const MC_USERNAME = process.env.MC_USERNAME || "DiscordBot";
 
 const RECONNECT_DELAY = Number(
-  process.env.RECONNECT_DELAY || 5000
+  process.env.RECONNECT_DELAY || 5000
 );
 
 const AFK_INTERVAL = Number(
-  process.env.AFK_INTERVAL || 300000
+  process.env.AFK_INTERVAL || 300000
 );
 
 const WEB_PORT = Number(
-  process.env.WEB_PORT || 3000
+  process.env.WEB_PORT || 3000
 );
 
 // ======================================================
@@ -44,13 +44,13 @@ const LOGIN_COMMAND = "/login shizan";
 // ======================================================
 
 if (!DISCORD_TOKEN) {
-  console.error("DISCORD_TOKEN is missing.");
-  process.exit(1);
+  console.error("DISCORD_TOKEN is missing.");
+  process.exit(1);
 }
 
 if (!DISCORD_CHANNEL_ID) {
-  console.error("DISCORD_CHANNEL_ID is missing.");
-  process.exit(1);
+  console.error("DISCORD_CHANNEL_ID is missing.");
+  process.exit(1);
 }
 
 // ======================================================
@@ -58,11 +58,11 @@ if (!DISCORD_CHANNEL_ID) {
 // ======================================================
 
 const discord = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent
-  ]
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent
+  ]
 });
 
 // ======================================================
@@ -89,59 +89,59 @@ let loginSent = false;
 // ======================================================
 
 async function getDiscordChannel() {
-  try {
-    return await discord.channels.fetch(
-      DISCORD_CHANNEL_ID
-    );
-  } catch (error) {
-    console.error(
-      "Could not fetch Discord channel:",
-      error.message
-    );
+  try {
+    return await discord.channels.fetch(
+      DISCORD_CHANNEL_ID
+    );
+  } catch (error) {
+    console.error(
+      "Could not fetch Discord channel:",
+      error.message
+    );
 
-    return null;
-  }
+    return null;
+  }
 }
 
 async function sendDiscordMessage(content) {
-  const channel = await getDiscordChannel();
+  const channel = await getDiscordChannel();
 
-  if (!channel) return;
+  if (!channel) return;
 
-  try {
-    await channel.send({
-      content: String(content).slice(0, 1900)
-    });
-  } catch (error) {
-    console.error(
-      "Discord message error:",
-      error.message
-    );
-  }
+  try {
+    await channel.send({
+      content: String(content).slice(0, 1900)
+    });
+  } catch (error) {
+    console.error(
+      "Discord message error:",
+      error.message
+    );
+  }
 }
 
 async function sendLog(title, description) {
-  const channel = await getDiscordChannel();
+  const channel = await getDiscordChannel();
 
-  if (!channel) return;
+  if (!channel) return;
 
-  try {
-    const embed = new EmbedBuilder()
-      .setTitle(title)
-      .setDescription(
-        String(description).slice(0, 4000)
-      )
-      .setTimestamp();
+  try {
+    const embed = new EmbedBuilder()
+      .setTitle(title)
+      .setDescription(
+        String(description).slice(0, 4000)
+      )
+      .setTimestamp();
 
-    await channel.send({
-      embeds: [embed]
-    });
-  } catch (error) {
-    console.error(
-      "Discord log error:",
-      error.message
-    );
-  }
+    await channel.send({
+      embeds: [embed]
+    });
+  } catch (error) {
+    console.error(
+      "Discord log error:",
+      error.message
+    );
+  }
 }
 
 // ======================================================
@@ -149,49 +149,49 @@ async function sendLog(title, description) {
 // ======================================================
 
 function tryAutoLogin(text) {
-  if (!mcBot) return;
+  if (!mcBot) return;
 
-  if (loginSent) return;
+  if (loginSent) return;
 
-  const lower = text.toLowerCase();
+  const lower = text.toLowerCase();
 
-  const loginRequested =
-    lower.includes("/login") ||
-    lower.includes("please login") ||
-    lower.includes("please log in") ||
-    lower.includes("type /login") ||
-    lower.includes("use /login") ||
-    lower.includes("login with") ||
-    lower.includes("you need to login") ||
-    lower.includes("you need to log in");
+  const loginRequested =
+    lower.includes("/login") ||
+    lower.includes("please login") ||
+    lower.includes("please log in") ||
+    lower.includes("type /login") ||
+    lower.includes("use /login") ||
+    lower.includes("login with") ||
+    lower.includes("you need to login") ||
+    lower.includes("you need to log in");
 
-  if (!loginRequested) return;
+  if (!loginRequested) return;
 
-  loginSent = true;
+  loginSent = true;
 
-  console.log("🔐 Login requested by server.");
+  console.log("🔐 Login requested by server.");
 
-  setTimeout(() => {
-    if (!mcBot) return;
+  setTimeout(() => {
+    if (!mcBot) return;
 
-    try {
-      mcBot.chat(LOGIN_COMMAND);
+    try {
+      mcBot.chat(LOGIN_COMMAND);
 
-      console.log("🔐 Auto-login command sent.");
+      console.log("🔐 Auto-login command sent.");
 
-      sendLog(
-        "🔐 Auto Login",
-        "The Minecraft server requested a login. Auto-login was sent."
-      );
-    } catch (error) {
-      loginSent = false;
+      sendLog(
+        "🔐 Auto Login",
+        "The Minecraft server requested a login. Auto-login was sent."
+      );
+    } catch (error) {
+      loginSent = false;
 
-      console.error(
-        "Auto-login error:",
-        error.message
-      );
-    }
-  }, 1000);
+      console.error(
+        "Auto-login error:",
+        error.message
+      );
+    }
+  }, 1000);
 }
 
 // ======================================================
@@ -199,59 +199,59 @@ function tryAutoLogin(text) {
 // ======================================================
 
 function stopAfkTimer() {
-  if (afkTimer) {
-    clearInterval(afkTimer);
-    afkTimer = null;
-  }
+  if (afkTimer) {
+    clearInterval(afkTimer);
+    afkTimer = null;
+  }
 }
 
 function startAfkTimer() {
-  stopAfkTimer();
+  stopAfkTimer();
 
-  if (!afkMode) return;
+  if (!afkMode) return;
 
-  console.log(
-    "💤 AFK mode enabled."
-  );
+  console.log(
+    "💤 AFK mode enabled."
+  );
 
-  afkTimer = setInterval(() => {
+  afkTimer = setInterval(() => {
 
-    if (!mcBot || !mcBot.entity) {
-      return;
-    }
+    if (!mcBot || !mcBot.entity) {
+      return;
+    }
 
-    try {
+    try {
 
-      mcBot.setControlState(
-        "jump",
-        true
-      );
+      mcBot.setControlState(
+        "jump",
+        true
+      );
 
-      setTimeout(() => {
+      setTimeout(() => {
 
-        if (mcBot) {
-          mcBot.setControlState(
-            "jump",
-            false
-          );
-        }
+        if (mcBot) {
+          mcBot.setControlState(
+            "jump",
+            false
+          );
+        }
 
-      }, 500);
+      }, 500);
 
-      console.log(
-        "🦘 AFK jump."
-      );
+      console.log(
+        "🦘 AFK jump."
+      );
 
-    } catch (error) {
+    } catch (error) {
 
-      console.error(
-        "AFK error:",
-        error.message
-      );
+      console.error(
+        "AFK error:",
+        error.message
+      );
 
-    }
+    }
 
-  }, AFK_INTERVAL);
+  }, AFK_INTERVAL);
 }
 
 // ======================================================
@@ -260,30 +260,30 @@ function startAfkTimer() {
 
 function scheduleReconnect() {
 
-  if (manuallyDisconnected) {
-    return;
-  }
+  if (manuallyDisconnected) {
+    return;
+  }
 
-  if (reconnectTimer) {
-    return;
-  }
+  if (reconnectTimer) {
+    return;
+  }
 
-  console.log(
-    `🔄 Reconnecting in ${RECONNECT_DELAY / 1000}s...`
-  );
+  console.log(
+    `🔄 Reconnecting in ${RECONNECT_DELAY / 1000}s...`
+  );
 
-  sendLog(
-    "🔄 Auto Reconnect",
-    `Trying again in **${RECONNECT_DELAY / 1000} seconds**.`
-  );
+  sendLog(
+    "🔄 Auto Reconnect",
+    `Trying again in **${RECONNECT_DELAY / 1000} seconds**.`
+  );
 
-  reconnectTimer = setTimeout(() => {
+  reconnectTimer = setTimeout(() => {
 
-    reconnectTimer = null;
+    reconnectTimer = null;
 
-    connectMinecraft();
+    connectMinecraft();
 
-  }, RECONNECT_DELAY);
+  }, RECONNECT_DELAY);
 }
 
 // ======================================================
@@ -292,165 +292,165 @@ function scheduleReconnect() {
 
 function setupMinecraftEvents() {
 
-  if (!mcBot) return;
+  if (!mcBot) return;
 
-  mcBot.once("spawn", () => {
+  mcBot.once("spawn", () => {
 
-    isConnecting = false;
+    isConnecting = false;
 
-    loginSent = false;
+    loginSent = false;
 
-    console.log(
-      "🟢 Minecraft bot spawned."
-    );
+    console.log(
+      "🟢 Minecraft bot spawned."
+    );
 
-    sendLog(
-      "🟢 Minecraft Connected",
-      `Connected to \`${currentHost}\` as **${MC_USERNAME}**`
-    );
+    sendLog(
+      "🟢 Minecraft Connected",
+      `Connected to \`${currentHost}:${currentPort}\` as **${MC_USERNAME}**`
+    );
 
-    startAfkTimer();
+    startAfkTimer();
 
-  });
+  });
 
-  // ================================================
-  // ALL MINECRAFT CHAT / SERVER MESSAGES
-  // ================================================
+  // ================================================
+  // ALL MINECRAFT CHAT / SERVER MESSAGES
+  // ================================================
 
-  mcBot.on("message", (jsonMsg) => {
+  mcBot.on("message", (jsonMsg) => {
 
-    const text = jsonMsg.toString();
+    const text = jsonMsg.toString();
 
-    console.log(
-      `[MC] ${text}`
-    );
+    console.log(
+      `[MC] ${text}`
+    );
 
-    sendDiscordMessage(
-      `**[MC]** ${text}`
-    );
+    sendDiscordMessage(
+      `**[MC]** ${text}`
+    );
 
-    // Check for login request
-    tryAutoLogin(text);
+    // Check for login request
+    tryAutoLogin(text);
 
-  });
+  });
 
-  // ================================================
-  // PLAYER CHAT
-  // ================================================
+  // ================================================
+  // PLAYER CHAT
+  // ================================================
 
-  mcBot.on(
-    "chat",
-    (username, message) => {
+  mcBot.on(
+    "chat",
+    (username, message) => {
 
-      if (
-        mcBot &&
-        username === mcBot.username
-      ) {
-        return;
-      }
+      if (
+        mcBot &&
+        username === mcBot.username
+      ) {
+        return;
+      }
 
-      console.log(
-        `[MC CHAT] ${username}:${message}`
-      );
+      console.log(
+        `[MC CHAT] ${username}: ${message}`
+      );
 
-      sendDiscordMessage(
-        `💬 **${username}:**${message}`
-      );
+      sendDiscordMessage(
+        `💬 **${username}:** ${message}`
+      );
 
-    }
-  );
+    }
+  );
 
-  // ================================================
-  // WHISPERS
-  // ================================================
+  // ================================================
+  // WHISPERS
+  // ================================================
 
-  mcBot.on(
-    "whisper",
-    (username, message) => {
+  mcBot.on(
+    "whisper",
+    (username, message) => {
 
-      console.log(
-        `[MC WHISPER] ${username}:${message}`
-      );
+      console.log(
+        `[MC WHISPER] ${username}: ${message}`
+      );
 
-      sendDiscordMessage(
-        `📩 **${username} whispered:**${message}`
-      );
+      sendDiscordMessage(
+        `📩 **${username} whispered:** ${message}`
+      );
 
-    }
-  );
+    }
+  );
 
-  // ================================================
-  // KICK
-  // ================================================
+  // ================================================
+  // KICK
+  // ================================================
 
-  mcBot.on(
-    "kicked",
-    (reason) => {
+  mcBot.on(
+    "kicked",
+    (reason) => {
 
-      console.log(
-        "⚠️ Minecraft bot kicked:",
-        reason
-      );
+      console.log(
+        "⚠️ Minecraft bot kicked:",
+        reason
+      );
 
-      sendLog(
-        "⚠️ Minecraft Kicked",
-        `Reason: \`${String(reason).slice(0, 1000)}\``
-      );
+      sendLog(
+        "⚠️ Minecraft Kicked",
+        `Reason: \`${String(reason).slice(0, 1000)}\``
+      );
 
-    }
-  );
+    }
+  );
 
-  // ================================================
-  // ERROR
-  // ================================================
+  // ================================================
+  // ERROR
+  // ================================================
 
-  mcBot.on(
-    "error",
-    (error) => {
+  mcBot.on(
+    "error",
+    (error) => {
 
-      console.error(
-        "❌ Minecraft error:",
-        error.message
-      );
+      console.error(
+        "❌ Minecraft error:",
+        error.message
+      );
 
-      sendLog(
-        "❌ Minecraft Error",
-        `\`${error.message}\``
-      );
+      sendLog(
+        "❌ Minecraft Error",
+        `\`${error.message}\``
+      );
 
-    }
-  );
+    }
+  );
 
-  // ================================================
-  // DISCONNECT
-  // ================================================
+  // ================================================
+  // DISCONNECT
+  // ================================================
 
-  mcBot.on(
-    "end",
-    (reason) => {
+  mcBot.on(
+    "end",
+    (reason) => {
 
-      isConnecting = false;
+      isConnecting = false;
 
-      loginSent = false;
+      loginSent = false;
 
-      console.log(
-        "🔴 Minecraft connection ended:",
-        reason
-      );
+      console.log(
+        "🔴 Minecraft connection ended:",
+        reason
+      );
 
-      stopAfkTimer();
+      stopAfkTimer();
 
-      sendLog(
-        "🔴 Minecraft Disconnected",
-        `Reason: \`${String(reason || "Unknown")}\``
-      );
+      sendLog(
+        "🔴 Minecraft Disconnected",
+        `Reason: \`${String(reason || "Unknown")}\``
+      );
 
-      if (!manuallyDisconnected) {
-        scheduleReconnect();
-      }
+      if (!manuallyDisconnected) {
+        scheduleReconnect();
+      }
 
-    }
-  );
+    }
+  );
 }
 
 // ======================================================
@@ -459,100 +459,100 @@ function setupMinecraftEvents() {
 
 function connectMinecraft() {
 
-  if (isConnecting) {
+  if (isConnecting) {
 
-    console.log(
-      "⚠️ Already connecting."
-    );
+    console.log(
+      "⚠️ Already connecting."
+    );
 
-    return;
-  }
+    return;
+  }
 
-  if (!currentHost) {
+  if (!currentHost) {
 
-    console.log(
-      "❌ No Minecraft server configured."
-    );
+    console.log(
+      "❌ No Minecraft server configured."
+    );
 
-    return;
-  }
+    return;
+  }
 
-  if (mcBot) {
+  if (mcBot) {
 
-    try {
-      mcBot.quit(
-        "Reconnecting"
-      );
-    } catch {}
+    try {
+      mcBot.quit(
+        "Reconnecting"
+      );
+    } catch {}
 
-    mcBot = null;
-  }
+    mcBot = null;
+  }
 
-  clearTimeout(
-    reconnectTimer
-  );
+  clearTimeout(
+    reconnectTimer
+  );
 
-  reconnectTimer = null;
+  reconnectTimer = null;
 
-  isConnecting = true;
+  isConnecting = true;
 
-  manuallyDisconnected = false;
+  manuallyDisconnected = false;
 
-  loginSent = false;
+  loginSent = false;
 
-  console.log(
-    `🔗 Connecting to ${currentHost}`
-  );
+  console.log(
+    `🔗 Connecting to ${currentHost}:${currentPort}`
+  );
 
-  sendLog(
-    "🔗 Minecraft Connecting",
-    `Connecting to \`${currentHost}\``
-  );
+  sendLog(
+    "🔗 Minecraft Connecting",
+    `Connecting to \`${currentHost}:${currentPort}\``
+  );
 
-  const options = {
+  const options = {
 
-    host: currentHost,
+    host: currentHost,
 
-    port: currentPort,
+    port: currentPort,
 
-    username: MC_USERNAME,
+    username: MC_USERNAME,
 
-    auth: "offline"
+    auth: "offline"
 
-  };
+  };
 
-  // IMPORTANT:
-  // Your server currently requires 1.21.11
-  // even though it reports a newer version.
+  // IMPORTANT:
+  // Your server currently requires 1.21.11
+  // even though it reports a newer version.
 
-  if (process.env.MC_VERSION) {
+  if (process.env.MC_VERSION) {
 
-    options.version =
-      process.env.MC_VERSION;
+    options.version =
+      process.env.MC_VERSION;
 
-  }
+  }
 
-  try {
+  try {
 
-    mcBot =
-      mineflayer.createBot(
-        options
-      );
+    mcBot =
+      mineflayer.createBot(
+        options
+      );
 
-    setupMinecraftEvents();
+    setupMinecraftEvents();
 
-  } catch (error) {
+  } catch (error) {
 
-    isConnecting = false;
+    isConnecting = false;
 
-    console.error(
-      "Minecraft creation error:",
-      error.message
-    );
+    console.error(
+      "Minecraft creation error:",
+      error.message
+    );
 
-    scheduleReconnect();
+    scheduleReconnect();
 
-  }
+  }
 }
 
 // ======================================================
@@ -560,236 +560,253 @@ function connectMinecraft() {
 // ======================================================
 
 discord.on(
-  "messageCreate",
-  async (message) => {
+  "messageCreate",
+  async (message) => {
 
-    if (message.author.bot) {
-      return;
-    }
+    if (message.author.bot) {
+      return;
+    }
 
-    if (
-      !message.content.startsWith(
-        PREFIX
-      )
-    ) {
-      return;
-    }
+    if (
+      !message.content.startsWith(
+        PREFIX
+      )
+    ) {
+      return;
+    }
 
-    const args =
-      message.content
-        .slice(PREFIX.length)
-        .trim()
-        .split(/\s+/);
+    const args =
+      message.content
+        .slice(PREFIX.length)
+        .trim()
+        .split(/\s+/);
 
-    const command =
-      args.shift()?.toLowerCase();
+    const command =
+      args.shift()?.toLowerCase();
 
-    // ================================================
-    // ?say
-    // ================================================
+    // ================================================
+    // ?say
+    // ================================================
 
-    if (command === "say") {
+    if (command === "say") {
 
-      const text =
-        args.join(" ");
+      const text =
+        args.join(" ");
 
-      if (!text) {
+      if (!text) {
 
-        return message.reply(
-          "❌ Usage: `?say <message>`"
-        );
+        return message.reply(
+          "❌ Usage: `?say <message>`"
+        );
 
-      }
+      }
 
-      if (
-        !mcBot ||
-        !mcBot.player
-      ) {
+      if (
+        !mcBot ||
+        !mcBot.player
+      ) {
 
-        return message.reply(
-          "❌ Minecraft bot is not connected."
-        );
+        return message.reply(
+          "❌ Minecraft bot is not connected."
+        );
 
-      }
+      }
 
-      try {
+      try {
 
-        mcBot.chat(text);
+        mcBot.chat(text);
 
-        await message.reply(
-          `✅ Sent to Minecraft: **${text}**`
-        );
+        await message.reply(
+          `✅ Sent to Minecraft: **${text}**`
+        );
 
-        sendLog(
-          "💬 Discord → Minecraft",
-          `**${message.author.tag}** sent:\n> ${text}`
-        );
+        sendLog(
+          "💬 Discord → Minecraft",
+          `**${message.author.tag}** sent:\n> ${text}`
+        );
 
-      } catch (error) {
+      } catch (error) {
 
-        message.reply(
-          `❌ Failed to send: ${error.message}`
-        );
+        message.reply(
+          `❌ Failed to send: ${error.message}`
+        );
 
-      }
+      }
 
-      return;
-    }
+      return;
+    }
 
-    // ================================================
-    // ?join
-    // ================================================
+    // ================================================
+    // ?join
+    // ================================================
 
-    if (command === "join") {
+    if (command === "join") {
 
-      const host = args[0];
+      const host = args[0];
 
-      if (!host) {
+      if (!host) {
 
-        return message.reply(
-          "❌ Usage: `?join <server-ip>`"
-        );
+        return message.reply(
+          "❌ Usage: `?join <server-ip> [port]`"
+        );
 
-      }
+      }
 
-      currentHost = host;
+      const port =
+        Number(
+          args[1] || 25565
+        );
 
-      currentPort = 25565;
+      if (
+        !Number.isInteger(port) ||
+        port < 1 ||
+        port > 65535
+      ) {
 
-      manuallyDisconnected =
-        false;
+        return message.reply(
+          "❌ Invalid port."
+        );
 
-      if (mcBot) {
+      }
 
-        try {
+      currentHost = host;
 
-          mcBot.quit(
-            "Switching server"
-          );
+      currentPort = port;
 
-        } catch {}
+      manuallyDisconnected =
+        false;
 
-        mcBot = null;
+      if (mcBot) {
 
-      }
+        try {
 
-      clearTimeout(
-        reconnectTimer
-      );
+          mcBot.quit(
+            "Switching server"
+          );
 
-      reconnectTimer = null;
+        } catch {}
 
-      await message.reply(
-        `🔗 Joining **${host}**...`
-      );
+        mcBot = null;
 
-      connectMinecraft();
+      }
 
-      return;
-    }
+      clearTimeout(
+        reconnectTimer
+      );
 
-    // ================================================
-    // ?mode
-    // ================================================
+      reconnectTimer = null;
 
-    if (command === "mode") {
+      await message.reply(
+        `🔗 Joining **${host}:${port}**...`
+      );
 
-      const mode =
-        args[0]?.toLowerCase();
+      connectMinecraft();
 
-      if (!mode) {
+      return;
+    }
 
-        return message.reply(
-          `⚙️ Current mode: **${afkMode ? "AFK" : "NO AFK"}**`
-        );
+    // ================================================
+    // ?mode
+    // ================================================
 
-      }
+    if (command === "mode") {
 
-      if (mode === "afk") {
+      const mode =
+        args[0]?.toLowerCase();
 
-        afkMode = true;
+      if (!mode) {
 
-        startAfkTimer();
+        return message.reply(
+          `⚙️ Current mode: **${afkMode ? "AFK" : "NO AFK"}**`
+        );
 
-        await message.reply(
-          "💤 **AFK mode enabled.** The bot will jump every 5 minutes."
-        );
+      }
 
-        sendLog(
-          "💤 AFK Mode",
-          `Enabled by **${message.author.tag}**`
-        );
+      if (mode === "afk") {
 
-        return;
-      }
+        afkMode = true;
 
-      if (
-        mode === "noafk" ||
-        mode === "no-afk" ||
-        mode === "off"
-      ) {
+        startAfkTimer();
 
-        afkMode = false;
+        await message.reply(
+          "💤 **AFK mode enabled.** The bot will jump every 5 minutes."
+        );
 
-        stopAfkTimer();
+        sendLog(
+          "💤 AFK Mode",
+          `Enabled by **${message.author.tag}**`
+        );
 
-        await message.reply(
-          "🟢 **NO AFK mode enabled.**"
-        );
+        return;
+      }
 
-        sendLog(
-          "🟢 AFK Mode Disabled",
-          `Disabled by **${message.author.tag}**`
-        );
+      if (
+        mode === "noafk" ||
+        mode === "no-afk" ||
+        mode === "off"
+      ) {
 
-        return;
-      }
+        afkMode = false;
 
-      return message.reply(
-        "❌ Use `?mode afk` or `?mode noafk`."
-      );
-    }
+        stopAfkTimer();
 
-    // ================================================
-    // ?status
-    // ================================================
+        await message.reply(
+          "🟢 **NO AFK mode enabled.**"
+        );
 
-    if (command === "status") {
+        sendLog(
+          "🟢 AFK Mode Disabled",
+          `Disabled by **${message.author.tag}**`
+        );
 
-      const mcStatus =
-        mcBot && mcBot.player
-          ? "🟢 Connected"
-          : "🔴 Disconnected";
+        return;
+      }
 
-      return message.reply(
-        `🤖 **Bot Status**\n\n` +
-        `Minecraft: ${mcStatus}\n` +
-        `Server: \`${currentHost || "None"}\`\n` +
-        `Mode: **${afkMode ? "AFK" : "NO AFK"}**`
-      );
+      return message.reply(
+        "❌ Use `?mode afk` or `?mode noafk`."
+      );
+    }
 
-    }
+    // ================================================
+    // ?status
+    // ================================================
 
-    // ================================================
-    // ?help
-    // ================================================
+    if (command === "status") {
 
-    if (command === "help") {
+      const mcStatus =
+        mcBot && mcBot.player
+          ? "🟢 Connected"
+          : "🔴 Disconnected";
 
-      return message.reply(
-        `**Minecraft Bot Commands**\n\n` +
-        `\`${PREFIX}say <message>\` — Send chat to Minecraft\n` +
-        `\`${PREFIX}join <ip>\` — Join a Minecraft server\n` +
-        `\`${PREFIX}mode afk\` — Enable AFK jumping\n` +
-        `\`${PREFIX}mode noafk\` — Disable AFK jumping\n` +
-        `\`${PREFIX}mode\` — Show current mode\n` +
-        `\`${PREFIX}status\` — Show bot status\n` +
-        `\`${PREFIX}help\` — Show commands`
-      );
+      return message.reply(
+        `🤖 **Bot Status**\n\n` +
+        `Minecraft: ${mcStatus}\n` +
+        `Server: \`${currentHost || "None"}:${currentPort}\`\n` +
+        `Mode: **${afkMode ? "AFK" : "NO AFK"}**`
+      );
 
-    }
+    }
 
-  }
+    // ================================================
+    // ?help
+    // ================================================
+
+    if (command === "help") {
+
+      return message.reply(
+        `**Minecraft Bot Commands**\n\n` +
+        `\`${PREFIX}say <message>\` — Send chat to Minecraft\n` +
+        `\`${PREFIX}join <ip> [port]\` — Join a Minecraft server\n` +
+        `\`${PREFIX}mode afk\` — Enable AFK jumping\n` +
+        `\`${PREFIX}mode noafk\` — Disable AFK jumping\n` +
+        `\`${PREFIX}mode\` — Show current mode\n` +
+        `\`${PREFIX}status\` — Show bot status\n` +
+        `\`${PREFIX}help\` — Show commands`
+      );
+
+    }
+
+  }
 );
 
 // ======================================================
@@ -797,23 +814,23 @@ discord.on(
 // ======================================================
 
 discord.once(
-  "ready",
-  () => {
+  "ready",
+  () => {
 
-    console.log(
-      `🤖 Discord logged in as ${discord.user.tag}`
-    );
+    console.log(
+      `🤖 Discord logged in as ${discord.user.tag}`
+    );
 
-    sendLog(
-      "🟢 Discord Bot Online",
-      `Logged in as **${discord.user.tag}**`
-    );
+    sendLog(
+      "🟢 Discord Bot Online",
+      `Logged in as **${discord.user.tag}**`
+    );
 
-    if (DEFAULT_MC_HOST) {
-      connectMinecraft();
-    }
+    if (DEFAULT_MC_HOST) {
+      connectMinecraft();
+    }
 
-  }
+  }
 );
 
 // ======================================================
@@ -821,15 +838,15 @@ discord.once(
 // ======================================================
 
 discord.on(
-  "error",
-  (error) => {
+  "error",
+  (error) => {
 
-    console.error(
-      "Discord error:",
-      error
-    );
+    console.error(
+      "Discord error:",
+      error
+    );
 
-  }
+  }
 );
 
 // ======================================================
@@ -839,55 +856,55 @@ discord.on(
 const app = express();
 
 app.get(
-  "/",
-  (req, res) => {
+  "/",
+  (req, res) => {
 
-    res.status(200).send(
-      "Minecraft Discord Bot is running."
-    );
+    res.status(200).send(
+      "Minecraft Discord Bot is running."
+    );
 
-  }
+  }
 );
 
 app.get(
-  "/status",
-  (req, res) => {
+  "/status",
+  (req, res) => {
 
-    res.json({
+    res.json({
 
-      discord:
-        discord.isReady(),
+      discord:
+        discord.isReady(),
 
-      minecraft:
-        !!(
-          mcBot &&
-          mcBot.player
-        ),
+      minecraft:
+        !!(
+          mcBot &&
+          mcBot.player
+        ),
 
-      server:
-        currentHost
-          ? `${currentHost}`
-          : null,
+      server:
+        currentHost
+          ? `${currentHost}:${currentPort}`
+          : null,
 
-      mode:
-        afkMode
-          ? "afk"
-          : "noafk"
+      mode:
+        afkMode
+          ? "afk"
+          : "noafk"
 
-    });
+    });
 
-  }
+  }
 );
 
 app.listen(
-  WEB_PORT,
-  () => {
+  WEB_PORT,
+  () => {
 
-    console.log(
-      `🌐 Health server running on port ${WEB_PORT}`
-    );
+    console.log(
+      `🌐 Health server running on port ${WEB_PORT}`
+    );
 
-  }
+  }
 );
 
 // ======================================================
@@ -895,5 +912,5 @@ app.listen(
 // ======================================================
 
 discord.login(
-  DISCORD_TOKEN
-);
+  DISCORD_TOKEN
+);can you make no port is needed in this code do not touch anything else
