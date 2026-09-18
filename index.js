@@ -18,7 +18,7 @@ const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const DISCORD_CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
 
 const DEFAULT_MC_HOST = process.env.MC_HOST;
-const DEFAULT_MC_PORT = Number(process.env.MC_PORT || 25565);
+const DEFAULT_MC_PORT = 25565;
 const MC_USERNAME = process.env.MC_USERNAME || "DiscordBot";
 
 const RECONNECT_DELAY = Number(
@@ -306,7 +306,7 @@ function setupMinecraftEvents() {
 
     sendLog(
       "🟢 Minecraft Connected",
-      `Connected to \`${currentHost}:${currentPort}\` as **${MC_USERNAME}**`
+      `Connected to \`${currentHost}\` as **${MC_USERNAME}**`
     );
 
     startAfkTimer();
@@ -350,11 +350,11 @@ function setupMinecraftEvents() {
       }
 
       console.log(
-        `[MC CHAT] ${username}: ${message}`
+        `[MC CHAT] ${username}:${message}`
       );
 
       sendDiscordMessage(
-        `💬 **${username}:** ${message}`
+        `💬 **${username}:**${message}`
       );
 
     }
@@ -369,11 +369,11 @@ function setupMinecraftEvents() {
     (username, message) => {
 
       console.log(
-        `[MC WHISPER] ${username}: ${message}`
+        `[MC WHISPER] ${username}:${message}`
       );
 
       sendDiscordMessage(
-        `📩 **${username} whispered:** ${message}`
+        `📩 **${username} whispered:**${message}`
       );
 
     }
@@ -501,12 +501,12 @@ function connectMinecraft() {
   loginSent = false;
 
   console.log(
-    `🔗 Connecting to ${currentHost}:${currentPort}`
+    `🔗 Connecting to ${currentHost}`
   );
 
   sendLog(
     "🔗 Minecraft Connecting",
-    `Connecting to \`${currentHost}:${currentPort}\``
+    `Connecting to \`${currentHost}\``
   );
 
   const options = {
@@ -647,31 +647,14 @@ discord.on(
       if (!host) {
 
         return message.reply(
-          "❌ Usage: `?join <server-ip> [port]`"
-        );
-
-      }
-
-      const port =
-        Number(
-          args[1] || 25565
-        );
-
-      if (
-        !Number.isInteger(port) ||
-        port < 1 ||
-        port > 65535
-      ) {
-
-        return message.reply(
-          "❌ Invalid port."
+          "❌ Usage: `?join <server-ip>`"
         );
 
       }
 
       currentHost = host;
 
-      currentPort = port;
+      currentPort = 25565;
 
       manuallyDisconnected =
         false;
@@ -697,7 +680,7 @@ discord.on(
       reconnectTimer = null;
 
       await message.reply(
-        `🔗 Joining **${host}:${port}**...`
+        `🔗 Joining **${host}**...`
       );
 
       connectMinecraft();
@@ -781,7 +764,7 @@ discord.on(
       return message.reply(
         `🤖 **Bot Status**\n\n` +
         `Minecraft: ${mcStatus}\n` +
-        `Server: \`${currentHost || "None"}:${currentPort}\`\n` +
+        `Server: \`${currentHost || "None"}\`\n` +
         `Mode: **${afkMode ? "AFK" : "NO AFK"}**`
       );
 
@@ -796,7 +779,7 @@ discord.on(
       return message.reply(
         `**Minecraft Bot Commands**\n\n` +
         `\`${PREFIX}say <message>\` — Send chat to Minecraft\n` +
-        `\`${PREFIX}join <ip> [port]\` — Join a Minecraft server\n` +
+        `\`${PREFIX}join <ip>\` — Join a Minecraft server\n` +
         `\`${PREFIX}mode afk\` — Enable AFK jumping\n` +
         `\`${PREFIX}mode noafk\` — Disable AFK jumping\n` +
         `\`${PREFIX}mode\` — Show current mode\n` +
@@ -883,7 +866,7 @@ app.get(
 
       server:
         currentHost
-          ? `${currentHost}:${currentPort}`
+          ? `${currentHost}`
           : null,
 
       mode:
